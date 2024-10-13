@@ -1,18 +1,55 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Data;
+using System.Xml.Serialization;
 
 namespace Bankomat
 {
     internal class Program
     {
+        static void AccountNames(double[][] accountSum, string[][] accountNames, int identityNum)
+        {
+            Console.Clear();
+            for (int i = 0; i < accountSum[identityNum].Length; i++)
+            {
+                Console.WriteLine((i + 1) + ". " + accountNames[identityNum][i]);
+                Console.WriteLine("   " + accountSum[identityNum][i]);
+                int check = accountSum[identityNum].Length;
+            }
+        }
+        static void Transfer(ref double[][] money, int identityNum, int choice, double sum)
+        {
+            int toNum = 0;
+            Console.WriteLine("Välj konto att avdra från: ");
+            int fromNum = Convert.ToInt32(Console.ReadLine()) - 1;
+
+            if (choice == 2)
+            {
+                Console.WriteLine("Välj konto att överföra till");
+                toNum = Convert.ToInt32(Console.ReadLine()) - 1;
+            }
+            Console.Write("Ange antal: ");
+            sum = Convert.ToInt32(Console.ReadLine());
+
+            money[identityNum][fromNum] -= sum;
+
+            if (choice == 2)
+            {
+                money[identityNum][toNum] += sum;
+            }
+        }
         static void Main(string[] args)
         {
+            double sum = 0;
+            int identityNum = 0;
             bool[] loops = {true,true,true,true};
             while (loops[0] == true)
             {
                 //Användarnamn
-                int userIdentityNum = 0;
-                double[][] accounts =
+                
+                int[] userPin = { 1111, 2222, 3333, 4444, 5555 };
+
+                double[][] money =
                 [
                     new double[1]{10000.25},
                     new double[2]{200000, 20000},
@@ -20,6 +57,7 @@ namespace Bankomat
                     new double[4]{400000, 10000, 45000, 40000},
                     new double[5]{2000000, 5000000, 500000, 5000000, 50000 }
                 ];
+
                 string[][] accountNames =
                 [
                     new string[1]{ "Sparkonto" },
@@ -43,7 +81,7 @@ namespace Bankomat
                         if (userNameInput == userName[i])
                         {
                             loops[1] = false;
-                            userIdentityNum = i;
+                            identityNum = i;
                             break;
                         }
                         if (i == userName.Length - 1)
@@ -56,15 +94,15 @@ namespace Bankomat
                 }
                 while (loops[1] == true);
 
+                
+
                 for (int i = 0; i < 3; i++)
                 {
-                    Console.Write("Mata in pin-kod: ");
                     int pinInput = Convert.ToInt32(Console.ReadLine());
-                    int[] userPin = { 1111, 2222, 3333, 4444, 5555 };
 
                     for (int j = 0; j < userPin.Length; j++)
                     {
-                        if (pinInput == userPin[userIdentityNum])
+                        if (pinInput == userPin[identityNum])
                         {
                             i = userPin.Length;
                             break;
@@ -94,25 +132,34 @@ namespace Bankomat
                     switch (choice)
                     {
                         case 1:
-                            Console.Clear();
-                            for(int i = 0; i < accounts[userIdentityNum].Length; i++)
-                            {
-                                Console.WriteLine((i + 1) + ". " + accountNames[userIdentityNum][i]);
-                                Console.WriteLine("   " + accounts[userIdentityNum][i]);
-                                int check = accounts[userIdentityNum].Length;
-                            }
+                            AccountNames(money, accountNames, identityNum);
+              
+                            Console.WriteLine("Tryck 'Enter' för att återvända");
                             Console.ReadLine();
-                            Console.WriteLine("Tryck 'Enter' för att återvända");
                             break;
+
+
                         case 2:
-                            Console.WriteLine("Välj konto att ");
-                            int accountChoice = Convert.ToInt32(Console.ReadLine());
+                            AccountNames(money, accountNames, identityNum);
+
+                            Transfer(ref money, identityNum, choice, sum);
+
                             Console.WriteLine("Tryck 'Enter' för att återvända");
                             break;
+
+
                         case 3:
+                            AccountNames(money, accountNames, identityNum);
+
+                            Transfer(ref money, identityNum, choice, sum);
+
+                            
                             Console.WriteLine("Tryck 'Enter' för att återvända");
                             break;
+
+
                         case 4:
+                            loops[2] = false;
                             break;
                     }
                     Console.Clear();
